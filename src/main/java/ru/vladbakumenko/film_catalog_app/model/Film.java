@@ -15,5 +15,5 @@ public class Film {
     private Integer year;
     private String description;
     @Positive
-    private Double rating;
+    private Float rating;
 }
