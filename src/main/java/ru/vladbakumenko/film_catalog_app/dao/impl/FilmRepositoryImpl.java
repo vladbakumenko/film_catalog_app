@@ -1,14 +1,19 @@
 package ru.vladbakumenko.film_catalog_app.dao.impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.vladbakumenko.film_catalog_app.dao.FilmRepository;
 import ru.vladbakumenko.film_catalog_app.mapper.FilmMapper;
 import ru.vladbakumenko.film_catalog_app.model.Film;
 
+import java.sql.*;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
@@ -29,9 +34,42 @@ public class FilmRepositoryImpl implements FilmRepository {
         return Optional.empty();
     }
 
+    @SneakyThrows
     @Override
     public Film create(Film film) {
-        return null;
+        try {
+            Connection con = Objects.requireNonNull(jdbcTemplate.getDataSource()).getConnection();
+            con.setAutoCommit(false);
+
+            String sqlFilm = "insert into films(name, year, description, rating) values (?, ?, ?, ?)";
+
+            KeyHolder keyHolder = new GeneratedKeyHolder();
+
+            int row = jdbcTemplate.update(connection -> {
+                PreparedStatement ps = connection.prepareStatement(sqlFilm, Statement.RETURN_GENERATED_KEYS);
+                ps.setString(1, film.getName());
+                ps.setInt(2, film.getYear());
+                ps.setString(3, film.getDescription());
+                ps.setFloat(4, film.getRating());
+                return ps;
+            }, keyHolder);
+
+            if (row > 0) {
+                Long id = Objects.requireNonNull(keyHolder.getKey()).longValue();
+
+                film.setId(id);
+            } else {
+                con.rollback();
+                throw new SQLException();
+            }
+            con.commit();
+            con.close();
+
+        } catch (SQLException e) {
+            //todo is a rollback needed here?
+            throw new RuntimeException(e);
+        }
+        return film;
     }
 
     @Override

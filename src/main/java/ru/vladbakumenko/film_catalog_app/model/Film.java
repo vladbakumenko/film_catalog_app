@@ -5,6 +5,8 @@ import jakarta.validation.constraints.Positive;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.List;
+
 @Builder
 @Data
 public class Film {
@@ -16,4 +18,6 @@ public class Film {
     private String description;
     @Positive
     private Float rating;
+    transient List<FilmAndGenre> genres;
+    transient List<Actor> actors;
 }
