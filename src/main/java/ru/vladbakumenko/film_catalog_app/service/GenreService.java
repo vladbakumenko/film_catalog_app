@@ -21,8 +21,12 @@ public class GenreService {
 
         List<FilmAndGenre> filmAndGenreDtos = genreRepository.findFilmAndGenreDtoByFilmIds(filmIds);
         if (!filmAndGenreDtos.isEmpty()) {
-            filmAndGenreDtos.forEach(fagd ->
-                res.getOrDefault(fagd.getFilmId(), new ArrayList<>()).add(fagd));
+            filmAndGenreDtos.forEach(fagd -> {
+                        List<FilmAndGenre> filmAndGenres = res.getOrDefault(fagd.getFilmId(), new ArrayList<>());
+                        filmAndGenres.add(fagd);
+                        res.put(fagd.getFilmId(), filmAndGenres);
+                    }
+            );
         }
         return res;
     }
