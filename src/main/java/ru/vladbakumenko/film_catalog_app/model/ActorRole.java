@@ -8,8 +8,8 @@ import lombok.Data;
 @Builder
 public class ActorRole {
 
-    private Film film;
-    private Actor actor;
+    private Long filmId;
+    private Long actorId;
 
     @NotBlank
     private String role;

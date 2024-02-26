@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import ru.vladbakumenko.film_catalog_app.dao.FilmRepository;
 import ru.vladbakumenko.film_catalog_app.mapper.FilmMapper;
 import ru.vladbakumenko.film_catalog_app.model.Film;
@@ -36,6 +37,7 @@ public class FilmRepositoryImpl implements FilmRepository {
 
     @SneakyThrows
     @Override
+    @Transactional
     public Film create(Film film) {
         try {
             Connection con = Objects.requireNonNull(jdbcTemplate.getDataSource()).getConnection();
