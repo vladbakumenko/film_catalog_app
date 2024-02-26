@@ -1,10 +1,7 @@
 package ru.vladbakumenko.film_catalog_app.mapper;
 
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.stereotype.Component;
-import ru.vladbakumenko.film_catalog_app.dto.FilmDto;
 import ru.vladbakumenko.film_catalog_app.model.Film;
-import ru.vladbakumenko.film_catalog_app.model.Genre;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
