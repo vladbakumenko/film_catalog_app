@@ -2,8 +2,10 @@ package ru.vladbakumenko.film_catalog_app.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.vladbakumenko.film_catalog_app.dao.impl.FilmRepositoryImpl;
 import ru.vladbakumenko.film_catalog_app.dto.FilmDto;
+import ru.vladbakumenko.film_catalog_app.exception.BadRequestException;
 import ru.vladbakumenko.film_catalog_app.mapper.DtoMapper;
 import ru.vladbakumenko.film_catalog_app.model.Actor;
 import ru.vladbakumenko.film_catalog_app.model.Film;
@@ -21,6 +23,7 @@ public class FilmService {
 
     private final ActorService actorService;
 
+    @Transactional
     public List<FilmDto> getAll() {
         List<Film> films = filmRepository.findAll();
 
@@ -60,5 +63,9 @@ public class FilmService {
     }
 
     private void throwIfFilmNotValid(FilmDto filmDto) {
+        if (filmDto.getId() == null && filmRepository.findByNameAndYear(filmDto.getName().trim(), filmDto.getYear()).isPresent()) {
+            throw new BadRequestException("Фильм с таким названием и этого же года выпуска уже существует.");
+        }
+        //проверка на актёров
     }
 }

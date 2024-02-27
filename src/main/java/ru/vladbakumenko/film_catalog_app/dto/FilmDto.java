@@ -17,6 +17,7 @@ public class FilmDto {
     @Positive
     private Integer year;
     private String description;
+    @Positive
     private Float rating;
     private List<GenreDto> genres;
     private List<ActorDto> actors;

@@ -3,6 +3,7 @@ package ru.vladbakumenko.film_catalog_app.dao.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -32,45 +33,46 @@ public class FilmRepositoryImpl implements FilmRepository {
 
     @Override
     public Optional<Film> findById(Long id) {
-        return Optional.empty();
+        var sql = "select * from films where id = ?";
+
+        try {
+            return Optional.ofNullable(jdbcTemplate.queryForObject(sql, new FilmMapper()));
+        } catch (DataAccessException e) {
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public Optional<Film> findByNameAndYear(String name, Integer year) {
+        var sql = "select * from films where name ilike ? and year = ?";
+
+        try {
+            return Optional.ofNullable(jdbcTemplate.queryForObject(sql, new FilmMapper()));
+        } catch (DataAccessException e) {
+            return Optional.empty();
+        }
     }
 
     @SneakyThrows
     @Override
     @Transactional
     public Film create(Film film) {
-        try {
-            Connection con = Objects.requireNonNull(jdbcTemplate.getDataSource()).getConnection();
-            con.setAutoCommit(false);
+        String sqlFilm = "insert into films(name, year, description, rating) values (?, ?, ?, ?)";
 
-            String sqlFilm = "insert into films(name, year, description, rating) values (?, ?, ?, ?)";
+        KeyHolder keyHolder = new GeneratedKeyHolder();
 
-            KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(sqlFilm, Statement.RETURN_GENERATED_KEYS);
+            ps.setString(1, film.getName());
+            ps.setInt(2, film.getYear());
+            ps.setString(3, film.getDescription());
+            ps.setFloat(4, film.getRating());
+            return ps;
+        }, keyHolder);
 
-            int row = jdbcTemplate.update(connection -> {
-                PreparedStatement ps = connection.prepareStatement(sqlFilm, Statement.RETURN_GENERATED_KEYS);
-                ps.setString(1, film.getName());
-                ps.setInt(2, film.getYear());
-                ps.setString(3, film.getDescription());
-                ps.setFloat(4, film.getRating());
-                return ps;
-            }, keyHolder);
+        Long id = Objects.requireNonNull(keyHolder.getKey()).longValue();
+        film.setId(id);
 
-            if (row > 0) {
-                Long id = Objects.requireNonNull(keyHolder.getKey()).longValue();
-
-                film.setId(id);
-            } else {
-                con.rollback();
-                throw new SQLException();
-            }
-            con.commit();
-            con.close();
-
-        } catch (SQLException e) {
-            //todo is a rollback needed here?
-            throw new RuntimeException(e);
-        }
         return film;
     }
 
