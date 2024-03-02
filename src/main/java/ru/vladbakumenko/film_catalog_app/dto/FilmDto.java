@@ -1,6 +1,7 @@
 package ru.vladbakumenko.film_catalog_app.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,6 +20,7 @@ public class FilmDto {
     private String description;
     @Positive
     private Float rating;
+    @NotEmpty
     private List<GenreDto> genres;
     private List<ActorDto> actors;
 }

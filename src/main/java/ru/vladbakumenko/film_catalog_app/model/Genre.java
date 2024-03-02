@@ -8,9 +8,9 @@ import lombok.Data;
 @AllArgsConstructor
 public class Genre {
 
-    private transient Long filmId;
+    private Long filmId;
     private Integer genreId;
 
     @NotBlank
-    private String nameOfGenre;
+    private transient String nameOfGenre;
 }

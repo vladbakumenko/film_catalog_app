@@ -1,7 +1,5 @@
 package ru.vladbakumenko.film_catalog_app.dao;
 
-import ru.vladbakumenko.film_catalog_app.model.Film;
-
 import java.util.Optional;
 
 interface BaseRepository<T> {

@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.vladbakumenko.film_catalog_app.dao.impl.FilmRepositoryImpl;
 import ru.vladbakumenko.film_catalog_app.dto.FilmDto;
+import ru.vladbakumenko.film_catalog_app.dto.GenreDto;
 import ru.vladbakumenko.film_catalog_app.exception.BadRequestException;
 import ru.vladbakumenko.film_catalog_app.mapper.DtoMapper;
 import ru.vladbakumenko.film_catalog_app.model.Actor;
@@ -27,7 +28,7 @@ public class FilmService {
     public List<FilmDto> getAll() {
         List<Film> films = filmRepository.findAll();
 
-        var ids = films.stream().map(Film::getId).toList();
+        var ids = films.parallelStream().map(Film::getId).toList();
 
         Map<Long, List<Genre>> filmsAndGenres =
                 genreService.findGenresByFilmIds(ids);
@@ -35,7 +36,7 @@ public class FilmService {
         Map<Long, List<Actor>> filmsAndActors =
                 actorService.findActorsByFilmIds(ids);
 
-        return films.stream().map(film -> {
+        return films.parallelStream().map(film -> {
             var genres = filmsAndGenres.get(film.getId()).stream()
                     .map(DtoMapper::fromGenreToDto)
                     .toList();
@@ -49,23 +50,18 @@ public class FilmService {
     }
 
     //todo add mapper
-    public Film create(FilmDto filmDto) {
+    @Transactional
+    public FilmDto create(FilmDto filmDto) {
         throwIfFilmNotValid(filmDto);
-        Film film = Film.builder()
-                .name(filmDto.getName())
-                .year(filmDto.getYear())
-                .description(filmDto.getDescription())
-                .rating(filmDto.getRating())
-                .genres(filmDto.getGenres())
-                .actors(filmDto.getActors())
-                .build();
-        return filmRepository.create(film);
+        Film newFilm = filmRepository.create(DtoMapper.fromDtoToFilm(filmDto));
+        List<GenreDto> genres = genreService.create(filmDto.getGenres(), newFilm.getId());
+
+        return DtoMapper.fromFilmToDto(newFilm, genres, null);
     }
 
     private void throwIfFilmNotValid(FilmDto filmDto) {
         if (filmDto.getId() == null && filmRepository.findByNameAndYear(filmDto.getName().trim(), filmDto.getYear()).isPresent()) {
             throw new BadRequestException("Фильм с таким названием и этого же года выпуска уже существует.");
         }
-        //проверка на актёров
     }
 }

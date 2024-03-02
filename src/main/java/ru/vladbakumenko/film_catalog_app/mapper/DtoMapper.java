@@ -22,8 +22,22 @@ public class DtoMapper {
                 actors);
     }
 
+    public static Film fromDtoToFilm(FilmDto filmDto) {
+        return new Film(
+                filmDto.getId(),
+                filmDto.getName(),
+                filmDto.getYear(),
+                filmDto.getDescription(),
+                filmDto.getRating()
+        );
+    }
+
     public static GenreDto fromGenreToDto(Genre genre) {
         return new GenreDto(genre.getGenreId(), genre.getNameOfGenre());
+    }
+
+    public static Genre fromDtoToGenre(GenreDto dto, Long filmId) {
+        return new Genre(filmId, dto.getGenreId(), dto.getNameOfGenre());
     }
 
     public static ActorDto fromActorToDto(Actor actor) {
