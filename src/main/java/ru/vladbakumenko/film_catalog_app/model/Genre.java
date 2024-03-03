@@ -12,5 +12,5 @@ public class Genre {
     private Integer genreId;
 
     @NotBlank
-    private transient String nameOfGenre;
+    private String nameOfGenre;
 }

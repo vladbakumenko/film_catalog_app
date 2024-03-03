@@ -3,8 +3,10 @@ package ru.vladbakumenko.film_catalog_app.model;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 
+@Builder
 @AllArgsConstructor
 @Data
 public class Film {

@@ -4,7 +4,7 @@ import ru.vladbakumenko.film_catalog_app.model.Actor;
 
 import java.util.List;
 
-public interface ActorRepository {
+public interface ActorRepository extends BaseRepository<List<Actor>> {
 
     List<Actor> findActorsByFilmIds(List<Long> filmIds);
 }

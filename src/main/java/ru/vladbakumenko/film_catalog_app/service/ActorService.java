@@ -3,6 +3,8 @@ package ru.vladbakumenko.film_catalog_app.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.vladbakumenko.film_catalog_app.dao.impl.ActorRepositoryImpl;
+import ru.vladbakumenko.film_catalog_app.dto.ActorDto;
+import ru.vladbakumenko.film_catalog_app.mapper.DtoMapper;
 import ru.vladbakumenko.film_catalog_app.model.Actor;
 
 import java.util.ArrayList;
@@ -30,5 +32,10 @@ public class ActorService {
         }
 
         return res;
+    }
+
+    public List<ActorDto> create(List<ActorDto> actorDtos, Long id) {
+        List<Actor> actors = actorDtos.stream().map(dto -> DtoMapper.fromDtoToActor(dto, id)).toList();
+        return actorRepository.create(actors).stream().map(DtoMapper::fromActorToDto).toList();
     }
 }

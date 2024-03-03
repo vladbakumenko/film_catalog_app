@@ -23,7 +23,7 @@ public class FilmController {
     }
 
     @PostMapping
-    public Film create(@RequestBody @Valid FilmDto filmDto) {
+    public FilmDto create(@RequestBody @Valid FilmDto filmDto) {
         return filmService.create(filmDto);
     }
 }

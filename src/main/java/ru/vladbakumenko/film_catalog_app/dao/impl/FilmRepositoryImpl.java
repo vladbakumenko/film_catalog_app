@@ -47,7 +47,7 @@ public class FilmRepositoryImpl implements FilmRepository {
         var sql = "select * from films where name ilike ? and year = ?";
 
         try {
-            return Optional.ofNullable(jdbcTemplate.queryForObject(sql, new FilmMapper()));
+            return Optional.ofNullable(jdbcTemplate.queryForObject(sql, new FilmMapper(), name, year));
         } catch (DataAccessException e) {
             return Optional.empty();
         }
@@ -61,7 +61,7 @@ public class FilmRepositoryImpl implements FilmRepository {
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(sqlFilm, Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement ps = connection.prepareStatement(sqlFilm, new String[]{"id"});
             ps.setString(1, film.getName());
             ps.setInt(2, film.getYear());
             ps.setString(3, film.getDescription());

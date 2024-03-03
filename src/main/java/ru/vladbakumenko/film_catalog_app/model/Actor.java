@@ -8,11 +8,11 @@ import lombok.Data;
 @AllArgsConstructor
 public class Actor {
 
-    private transient Long filmId;
+    private Long filmId;
     private Long actorId;
 
     @NotBlank
-    private transient String role;
+    private String role;
     @NotBlank
     private String firstName;
     @NotBlank

@@ -43,4 +43,8 @@ public class DtoMapper {
     public static ActorDto fromActorToDto(Actor actor) {
         return new ActorDto(actor.getActorId(), actor.getRole(), actor.getFirstName(), actor.getSecondName());
     }
+
+    public static Actor fromDtoToActor(ActorDto dto, Long filmId) {
+        return new Actor(filmId, dto.getActorId(), dto.getRole(), dto.getFirstName(), dto.getSecondName());
+    }
 }
