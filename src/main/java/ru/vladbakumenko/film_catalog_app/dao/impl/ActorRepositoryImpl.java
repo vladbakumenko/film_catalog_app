@@ -10,6 +10,7 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSourceUtils;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import ru.vladbakumenko.film_catalog_app.dao.ActorRepository;
 import ru.vladbakumenko.film_catalog_app.model.Actor;
 
@@ -82,7 +83,9 @@ public class ActorRepositoryImpl implements ActorRepository {
 
         jdbcTemplate.batchUpdate(sql1, SqlParameterSourceUtils.createBatch(actors));
 
-        return maybeNewActors.values().stream().toList();
+        Collection<Actor> res = alreadyExistsActors.values();
+        res.addAll(actors);
+        return res.stream().toList();
     }
 
     @Override
@@ -98,28 +101,22 @@ public class ActorRepositoryImpl implements ActorRepository {
     @SneakyThrows
     public Map<FirstAndSecondName, Actor> getActorsByFirstAndSecondName(Set<FirstAndSecondName> names) {
 
+        Map<FirstAndSecondName, Actor> res = new HashMap<>();
+
         var sql = "select * from actors where first_name ilike ? and second_name ilike ?";
 
-        PreparedStatement ps = Objects.requireNonNull(jdbcTemplate.getJdbcTemplate().getDataSource()).getConnection().prepareStatement(sql);
-
         for (FirstAndSecondName name : names) {
-            ps.setString(1, name.firstName);
-            ps.setString(2, name.secondName);
-            ps.addBatch();
-        }
-
-        ResultSet rs = ps.executeQuery();
-        Map<FirstAndSecondName, Actor> res = new HashMap<>();
-        while (rs.next()) {
-            var firstName = rs.getString("first_name");
-            var secondName = rs.getString("second_name");
-            Actor actor = new Actor(null,
-                    rs.getLong("id"),
-                    null,
-                    firstName,
-                    secondName
-            );
-            res.put(new FirstAndSecondName(firstName, secondName), actor);
+            jdbcTemplate.getJdbcTemplate().query(sql, rs -> {
+                var firstName = rs.getString("first_name");
+                var secondName = rs.getString("second_name");
+                Actor actor = new Actor(null,
+                        rs.getLong("id"),
+                        null,
+                        firstName,
+                        secondName
+                );
+                res.put(new FirstAndSecondName(firstName, secondName), actor);
+            }, name.firstName, name.secondName);
         }
 
         return res;
